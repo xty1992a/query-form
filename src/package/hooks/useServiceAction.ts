@@ -1,14 +1,5 @@
-import {useRef, useState} from 'react'
-
-export interface ServiceActionResult<ResultData> {
-  success: boolean;
-  data: ResultData | null;
-}
-
-export interface ServiceAction<ResultData> {
-  resolve: (result: ServiceActionResult<ResultData>) => void;
-  initialData: ResultData;
-}
+import React,{useRef, useState} from 'react'
+import {ServiceActionResult, ServiceAction} from '../../types'
 
 export function useServiceAction<Data=any>(options: ServiceAction<Data>) {
   const callback = useRef(() => {})

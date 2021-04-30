@@ -1,8 +1,7 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
-import PagingPicker from "./PagingPicker";
-
-import type { PickOptions, PickResult, PagingPickerProps } from "../types";
+import QueryForm from "./QueryForm";
+import {QueryFormProps, QueryPayload, ServiceActionResult} from '../types'
 
 const dftOptions = {
   value: [],
@@ -17,50 +16,24 @@ const dftOptions = {
   },
 };
 
-function mergeOptions<Item>(
-  lameOptions: PickOptions<Item> & { resolve: Function }
-): PagingPickerProps<Item> {
-  // region 合并静态options
-  // 无request,但有options,实际就是静态options的配置项
-  const request =
-    lameOptions.request ||
-    (() =>
-      Promise.resolve({
-        success: true,
-        data: {
-          list: lameOptions.options || [],
-          total: lameOptions.options?.length ?? 0,
-        },
-      }));
-  // endregion
-
-  const result: PagingPickerProps<Item> = {
-    ...dftOptions,
-    ...lameOptions,
-    alias: {
-      ...(dftOptions.alias as { key: keyof Item }),
-      ...(lameOptions?.alias ?? {}),
-    },
-    request,
-  };
-
-  return {
-    ...result,
-    request,
-  };
-}
-
 export default function pickItem<Item>(
-  options: PickOptions<Item>
-): Promise<PickResult<Item>> {
+  options: QueryPayload<Item>
+): Promise<ServiceActionResult<Item>> {
   return new Promise((resolve) => {
     const div = document.createElement("div");
     document.body.appendChild(div);
-    const _resolve = (result: PickResult<Item>) => {
+    const _resolve = (result: ServiceActionResult<Item>) => {
       unmountComponentAtNode(div);
       resolve(result);
     };
-    const mergedOptions = mergeOptions<Item>({ ...options, resolve: _resolve });
-    render(<PagingPicker {...mergedOptions} />, div);
+
+    const payload = {
+      formData: {
+        name: ''
+      },
+      fields: []
+    }
+
+    render(<QueryForm payload={payload} resolve={_resolve} />, div);
   });
 }

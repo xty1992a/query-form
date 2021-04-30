@@ -1,45 +1,8 @@
-import React from "react";
+import React from 'react'
 import {useServiceAction} from "../hooks";
 import {Modal} from "antd";
 
-enum FieldTypes {
-  Input = 'Input',
-  Picker = 'Picker',
-  Checkbox = 'Checkbox',
-  Date = 'Date',
-  LinkPicker = 'LinkPicker',
-}
-
-interface Item<Form>{
-  value: string|number;
-  label: string;
-  disabled?: boolean | ((form: Form) => boolean);
-  [prop: string]: any;
-}
-
-interface Field<Form> {
-  type: keyof FieldTypes;
-  label: string;
-  name: keyof Form;
-  value: string | number | (number | string)[];
-  visible?: boolean | ((form: Form) => boolean);
-  options?: Item<Form>[];
-}
-
-interface QueryPayload<Form> {
-  fields: Field<Form>[];
-  formData: Form;
-  validator: (form: Form) => Promise<{ valid: boolean; message?: string }>
-  props: {
-    modal: any;
-    form: any;
-  }
-}
-
-interface QueryFormProps<Form> extends React.Props<any> {
-  payload:QueryPayload<Form>,
-  resolve: Function;
-}
+import {QueryPayload, QueryFormProps, FieldTypes} from '../../types'
 
 export default function QueryForm<Form={}>(props: QueryFormProps<Form>) {
   const {
@@ -54,7 +17,22 @@ export default function QueryForm<Form={}>(props: QueryFormProps<Form>) {
     initialData: props.payload.formData
   });
 
-  return <Modal>
+  const {validator} = props.payload
 
+  const onOk = async () => {
+    if(validator) {
+      const valid = await validator(data)
+      if (!valid) return
+    }
+    _onOk()
+  }
+
+  return <Modal
+    visible={visible}
+    onOk={onOk}
+    onCancel={onCancel}
+    afterClose={afterClose}
+  >
+    <p>hello world</p>
   </Modal>;
 }
