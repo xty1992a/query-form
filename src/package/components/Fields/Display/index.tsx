@@ -3,7 +3,6 @@ import {FieldProps} from '../../../../types'
 import './index.less'
 
 interface FieldDisplayProps<Form> extends FieldProps<Form> {
-  errorMessage?: string
 }
 
 export default function FieldDisplay<Form>(props: FieldDisplayProps<Form>) {
@@ -11,6 +10,11 @@ export default function FieldDisplay<Form>(props: FieldDisplayProps<Form>) {
     <div className="field-display_label" style={props.style.label}>{props.label}</div>
     <div className="field-display_value" style={props.style.value}>
       {props.children}
+      <span
+        className="field-display_error-message"
+         title={props.errorMessage}
+        style={{paddingLeft: props.style?.label?.width??'90px'}}
+      >{props.errorMessage}</span>
     </div>
   </div>
 }

@@ -1,15 +1,15 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Button} from "antd";
+import {Button, Input} from "antd";
 import {render} from "react-dom";
 import "antd/dist/antd.css";
 import queryForm from "../package/main";
-import type {FieldTypes, Field} from "../types";
+import type {Validator, Field, FormData} from "../types";
 import "./index.less";
 
 const sleep = (time: number) =>
   new Promise((resolve) => setTimeout(resolve, time));
 
-interface Form {
+interface Form extends FormData {
   name: string;
   age: number;
   hobby: string
@@ -39,31 +39,43 @@ const fields: Field<Form>[] = [
       else {
         keys = ['唱', '跳', '打篮球'];
       }
-      return keys.map(i => ({label: i, value: i}));
+      // 如果是蔡徐坤,只配阿巴阿巴,不配唱跳打篮球
+      const disabled = (i: string) => ['唱', '跳', '打篮球'].includes(i) ? ((form: Form) => form.name === '蔡徐坤') : undefined
+      return keys.map(i => ({label: i, value: i, disabled: disabled(i)}));
     }
   },
 ];
 
+const validator: Validator<Form> = async (form) => {
+  const name = !form.name ? '请填写名称' : '';
+  const hobby = (form.age > 10 && !form.hobby) ? '请选择爱好' : '';
+  return {
+    name,
+    hobby,
+  };
+};
+
 function App() {
   const [form, setForm] = useState<Form>({
-    name: '',
-    age: 10,
-    hobby: '唱'
+    name: '蔡徐坤',
+    age: 28,
+    hobby: ''
   });
 
   const onClick = async () => {
     const result = await queryForm<Form>({
       formData: form,
       fields,
+      validator,
       props: {
         modal: {
-          title: '查询表单'
+          title: '查询表单',
+          width: '500px'
         }
       }
     });
     console.log("result", result);
     if (!result.success) {
-      console.log(result.data);
       return;
     }
     setForm(result.data);

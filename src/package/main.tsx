@@ -31,7 +31,8 @@ export default function pickItem<Data>(
     const payload = {
       formData: options.formData,
       fields: options.fields,
-      props: options.props
+      props: options.props,
+      validator: options.validator
     }
 
     render(<QueryForm<Data> payload={payload} resolve={_resolve} />, div);

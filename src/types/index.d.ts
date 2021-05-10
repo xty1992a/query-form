@@ -9,11 +9,11 @@ import {ModalProps} from 'antd/lib/modal'
   'LinkPicker',
 }*/
 
-export interface Form {
+export interface FormData {
   [key: string]: string | number | (string|number)[]
 }
 
-type FieldTypesWithOptions = | 'Picker' | 'Checkbox'
+type FieldTypesWithOptions = 'Picker' | 'Checkbox'
 type FieldTypes = 'Input'  | 'Date' | 'LinkPicker' | FieldTypesWithOptions
 
 /*备选项的item*/
@@ -23,6 +23,12 @@ export interface Item<Form> {
   disabled?: boolean | ((form: Form) => boolean);
 
   [prop: string]: any;
+}
+
+export interface StaticItem {
+  value: string | number;
+  label: string;
+  disabled: boolean
 }
 
 export interface FieldStyle {
@@ -47,21 +53,28 @@ export interface StaticField<Form, Type="Input"> {
   label: string;
   name: keyof Form;
   visible: boolean;
-  options: Type extends FieldTypesWithOptions ?  Item<Form>[] : undefined;
+  options: Type extends FieldTypesWithOptions ?  StaticItem[] : undefined;
   style: FieldStyle
 }
 
 /*通用表单项组件props*/
 export interface FieldProps<Form, Type="Input"> extends React.Props<any>, StaticField<Form, Type> {
   value: string | number;
-  onChange: Function
+  onChange: Function;
+  errorMessage: string;
 }
+
+export type ValidatorResult<Form={}> = {
+  [Key in keyof Form]?: string;
+}
+
+export type Validator<Form> = (form: Form) => Promise<ValidatorResult<Form>>
 
 /*函数配置定义*/
 export interface QueryPayload<Form> {
   fields: Field<Form>[];
   formData: Form;
-  validator?: (form: Form) => Promise<boolean>
+  validator?: Validator<Form>;
   props?: {
     modal?: ModalProps;
     form?: any;

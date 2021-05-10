@@ -1,6 +1,6 @@
 import React, {useMemo, useRef} from 'react';
 import {Field, StaticField} from '../../types';
-import {dftFieldStyle} from '../consts'
+import {dftFieldStyle} from '../consts';
 
 export function useFields<Form>(options: {}, [fields, form, ...deps]: any[]) {
 
@@ -8,15 +8,21 @@ export function useFields<Form>(options: {}, [fields, form, ...deps]: any[]) {
     return fields.map((it: Field<Form>) => {
       const field = {...it};
       field.visible = (typeof field.visible === "function") ? field.visible(form) : (typeof field.visible === 'boolean') ? field.visible : true;
-      field.options = (typeof field.options === 'function') ? field.options(form) : field.options
+      field.options = (typeof field.options === 'function') ? field.options(form) : field.options;
+      field.options = Array.isArray(field.options) ? field.options.map(item => {
+        return {
+          ...item,
+          disabled: (typeof item.disabled === 'function') ? item.disabled(form) : !!item.disabled
+        };
+      }) : field.options;
       field.style = {
-        field: {...field?.style?.field??dftFieldStyle.field},
-        label: {...field?.style?.label??dftFieldStyle.label},
-        value: {...field?.style?.value??dftFieldStyle.value},
-      }
+        field: {...field?.style?.field ?? dftFieldStyle.field},
+        label: {...field?.style?.label ?? dftFieldStyle.label},
+        value: {...field?.style?.value ?? dftFieldStyle.value},
+      };
       return field;
-    }).filter((it: StaticField<Form>) => it.visible)
+    }).filter((it: StaticField<Form>) => it.visible);
   }, [fields, form]);
 
-  return [computedFields]
+  return [computedFields];
 }

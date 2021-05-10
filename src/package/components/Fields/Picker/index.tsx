@@ -7,7 +7,7 @@ interface PickerProps<Form> extends FieldProps<Form, "Picker"> {
   value: string | number,
 }
 
-export default function FieldInput<Form>(props: PickerProps<Form>) {
+export default function FieldPicker<Form>(props: PickerProps<Form>) {
 
   const subProps: FieldProps<Form> = {
     ...props,
@@ -15,8 +15,8 @@ export default function FieldInput<Form>(props: PickerProps<Form>) {
   };
 
   useEffect(() => {
-    // 如果值不在options中,重置值
-    const values = props.options.map(it => it.value);
+    // 如果值不在可用的options中,重置值
+    const values = props.options.filter(it => !it.disabled).map(it => it.value);
     if (!props.value) return;
     if (values.includes(props.value)) return;
     props.onChange(typeof props.value === "number" ? 0 : '');
@@ -28,7 +28,7 @@ export default function FieldInput<Form>(props: PickerProps<Form>) {
         props.options.map((item) => <Select.Option
           key={item.value}
           value={item.value}
-          disabled={!!(item.disabled)}
+          disabled={item.disabled}
         >
           {item.label}
         </Select.Option>)

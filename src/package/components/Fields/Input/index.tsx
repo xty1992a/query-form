@@ -6,7 +6,7 @@ import {Input} from 'antd'
 interface InputProps<Form> extends FieldProps<Form> {
   value: string | number
 }
-export default function FieldInput<Form, Type="Input">(props: InputProps<Form>) {
+export default function FieldInput<Form>(props: InputProps<Form>) {
   return <FieldDisplay {...props}>
     <Input value={props.value} onChange={e => {
       const value = e.target.value
