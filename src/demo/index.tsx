@@ -1,10 +1,9 @@
-// @ts-ignore
-import React, { useCallback, useEffect, useState } from "react";
-import { Button } from "antd";
-import { render } from "react-dom";
+import React, {useCallback, useEffect, useState} from "react";
+import {Button} from "antd";
+import {render} from "react-dom";
 import "antd/dist/antd.css";
 import queryForm from "../package/main";
-import type {FieldTypes , Field } from "../types";
+import type {FieldTypes, Field} from "../types";
 import "./index.less";
 
 const sleep = (time: number) =>
@@ -13,31 +12,61 @@ const sleep = (time: number) =>
 interface Form {
   name: string;
   age: number;
+  hobby: string
 }
 
 const fields: Field<Form>[] = [
   {
     name: 'name',
     label: '名称',
-    value: '',
     type: 'Input'
-  }
-]
+  },
+  {
+    name: 'age',
+    label: '年龄',
+    type: "Input"
+  },
+  {
+    name: 'hobby',
+    label: '爱好',
+    type: "Picker",
+    visible: form => form.age > 10,
+    options: form => {
+      let keys: string[] = [];
+      if (form.age < 20) {
+        keys = ['吃', '睡', '阿巴阿巴'];
+      }
+      else {
+        keys = ['唱', '跳', '打篮球'];
+      }
+      return keys.map(i => ({label: i, value: i}));
+    }
+  },
+];
 
 function App() {
   const [form, setForm] = useState<Form>({
     name: '',
-    age: 10
+    age: 10,
+    hobby: '唱'
   });
 
   const onClick = async () => {
     const result = await queryForm<Form>({
       formData: form,
-      fields
+      fields,
+      props: {
+        modal: {
+          title: '查询表单'
+        }
+      }
     });
     console.log("result", result);
-    if (!result.success) return;
-    setForm(result.data)
+    if (!result.success) {
+      console.log(result.data);
+      return;
+    }
+    setForm(result.data);
   };
 
   useEffect(() => {
@@ -58,4 +87,4 @@ function App() {
   );
 }
 
-render(<App />, document.getElementById("app"));
+render(<App/>, document.getElementById("app"));

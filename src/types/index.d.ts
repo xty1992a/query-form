@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import {ModalProps} from 'antd/lib/modal'
 
 /*export enum FieldTypes {
   'Input',
@@ -8,45 +9,85 @@ import React from 'react'
   'LinkPicker',
 }*/
 
-type FieldTypes = 'Input'|'Picker'|'Checkbox'|'Date'|'LinkPicker'
+export interface Form {
+  [key: string]: string | number | (string|number)[]
+}
 
-export interface Item<Form>{
-  value: string|number;
+type FieldTypesWithOptions = | 'Picker' | 'Checkbox'
+type FieldTypes = 'Input'  | 'Date' | 'LinkPicker' | FieldTypesWithOptions
+
+/*备选项的item*/
+export interface Item<Form> {
+  value: string | number;
   label: string;
   disabled?: boolean | ((form: Form) => boolean);
+
   [prop: string]: any;
 }
 
-export interface Field<Form> {
+export interface FieldStyle {
+  field?: React.CSSProperties;
+  label?: React.CSSProperties;
+  value?: React.CSSProperties;
+}
+
+/*对外表单项配置,部分字段可为函数*/
+export interface Field<Form, Type="Input"> {
   type: FieldTypes;
   label: string;
   name: keyof Form;
-  value: string | number | (number | string)[];
   visible?: boolean | ((form: Form) => boolean);
-  options?: Item<Form>[];
+  options?: Item<Form>[] | ((form: Form) => Item<Form>[]);
+  style?: FieldStyle
 }
 
+/*静态的表单项,内部使用,必须是确切的静态对象*/
+export interface StaticField<Form, Type="Input"> {
+  type: FieldTypes;
+  label: string;
+  name: keyof Form;
+  visible: boolean;
+  options: Type extends FieldTypesWithOptions ?  Item<Form>[] : undefined;
+  style: FieldStyle
+}
+
+/*通用表单项组件props*/
+export interface FieldProps<Form, Type="Input"> extends React.Props<any>, StaticField<Form, Type> {
+  value: string | number;
+  onChange: Function
+}
+
+/*函数配置定义*/
 export interface QueryPayload<Form> {
   fields: Field<Form>[];
   formData: Form;
   validator?: (form: Form) => Promise<boolean>
   props?: {
-    modal?: any;
+    modal?: ModalProps;
     form?: any;
   }
 }
 
+/*弹窗主体组件props*/
 export interface QueryFormProps<Form> extends React.Props<any> {
-  payload:QueryPayload<Form>,
+  payload: QueryPayload<Form>,
   resolve: Function;
 }
 
-
-export interface ServiceActionResult<ResultData> {
-  success: boolean;
-  data: ResultData | null;
+/*弹窗表单组件props*/
+export interface FormContentProps<Form> extends React.Props<any> {
+  formData: Form;
+  fields: StaticField<Form>[];
+  setField: (field: Partial<Form>) => void;
 }
 
+/*命令式弹窗返回结果定义*/
+export interface ServiceActionResult<ResultData> {
+  success: boolean;
+  data: ResultData;
+}
+
+/*命令式弹窗hooks定义*/
 export interface ServiceAction<ResultData> {
   resolve: Function;
   initialData: ResultData;

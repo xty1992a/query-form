@@ -2,6 +2,7 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import QueryForm from "./QueryForm";
 import {QueryFormProps, QueryPayload, ServiceActionResult} from '../types'
+import {Form} from "antd";
 
 const dftOptions = {
   value: [],
@@ -16,24 +17,23 @@ const dftOptions = {
   },
 };
 
-export default function pickItem<Item>(
-  options: QueryPayload<Item>
-): Promise<ServiceActionResult<Item>> {
+export default function pickItem<Data>(
+  options: QueryPayload<Data>
+): Promise<ServiceActionResult<Data>> {
   return new Promise((resolve) => {
     const div = document.createElement("div");
     document.body.appendChild(div);
-    const _resolve = (result: ServiceActionResult<Item>) => {
+    const _resolve = (result: ServiceActionResult<Data>) => {
       unmountComponentAtNode(div);
       resolve(result);
     };
 
     const payload = {
-      formData: {
-        name: ''
-      },
-      fields: []
+      formData: options.formData,
+      fields: options.fields,
+      props: options.props
     }
 
-    render(<QueryForm payload={payload} resolve={_resolve} />, div);
+    render(<QueryForm<Data> payload={payload} resolve={_resolve} />, div);
   });
 }
